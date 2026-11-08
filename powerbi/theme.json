@@ -1,0 +1,18 @@
+{
+  "name": "Finance Blue and Orange",
+  "dataColors": ["#2A5DB0", "#D9822B", "#5B8DD6", "#E9B27A", "#1F3864", "#8C8C8C", "#C0392B", "#6AA84F"],
+  "background": "#FFFFFF",
+  "foreground": "#333333",
+  "tableAccent": "#1F3864",
+  "good": "#2A5DB0",
+  "neutral": "#D9822B",
+  "bad": "#C0392B",
+  "maximum": "#2A5DB0",
+  "center": "#F2F2F2",
+  "minimum": "#C0392B",
+  "textClasses": {
+    "title": { "fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#1F3864" },
+    "label": { "fontFace": "Segoe UI", "fontSize": 10, "color": "#444444" },
+    "callout": { "fontFace": "Segoe UI Semibold", "fontSize": 28, "color": "#1F3864" }
+  }
+}

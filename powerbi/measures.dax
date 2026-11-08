@@ -1,0 +1,61 @@
+// Finance Transactions: Power BI measures
+// Create these in the fact_transactions table (Modeling > New measure), or in a separate table called _Measures.
+// Table and column names match the CSVs in the data/ folder.
+
+// ---------- Core ----------
+Total Revenue =
+CALCULATE ( SUM ( fact_transactions[amount] ), fact_transactions[type] = "Revenue" )
+
+Total Expense =
+CALCULATE ( SUM ( fact_transactions[amount] ), fact_transactions[type] = "Expense" )
+
+Net Profit = [Total Revenue] - [Total Expense]
+
+Profit Margin % = DIVIDE ( [Net Profit], [Total Revenue] )
+
+// ---------- Volume vs value ----------
+Revenue Transactions =
+CALCULATE ( COUNTROWS ( fact_transactions ), fact_transactions[type] = "Revenue" )
+
+Expense Transactions =
+CALCULATE ( COUNTROWS ( fact_transactions ), fact_transactions[type] = "Expense" )
+
+Avg Revenue per Transaction = DIVIDE ( [Total Revenue], [Revenue Transactions] )
+
+Avg Expense per Transaction = DIVIDE ( [Total Expense], [Expense Transactions] )
+
+// ---------- Year over year (needs dim_date marked as the date table) ----------
+Revenue PY =
+CALCULATE ( [Total Revenue], SAMEPERIODLASTYEAR ( dim_date[Date] ) )
+
+Expense PY =
+CALCULATE ( [Total Expense], SAMEPERIODLASTYEAR ( dim_date[Date] ) )
+
+Revenue Change vs PY = [Total Revenue] - [Revenue PY]
+
+Expense Change vs PY = [Total Expense] - [Expense PY]
+
+Revenue YoY % = DIVIDE ( [Revenue Change vs PY], [Revenue PY] )
+
+Expense YoY % = DIVIDE ( [Expense Change vs PY], [Expense PY] )
+
+// ---------- Trend ----------
+// Shows a value only when three full months are available, so Jan and Feb 2023 stay blank.
+Revenue 3M Avg =
+VAR _End = MAX ( dim_date[Date] )
+VAR _Window = DATESINPERIOD ( dim_date[Date], _End, -3, MONTH )
+VAR _Months = CALCULATE ( DISTINCTCOUNT ( dim_date[YearMonth] ), _Window )
+RETURN
+    IF ( _Months < 3, BLANK (), DIVIDE ( CALCULATE ( [Total Revenue], _Window ), 3 ) )
+
+// Returns the net value only for loss-making periods (use it to highlight loss months).
+Loss Net = IF ( [Net Profit] < 0, [Net Profit] )
+
+// ---------- Formatting helpers ----------
+// Use for conditional formatting (Format > Font color > Field value).
+Net Profit Color = IF ( [Net Profit] < 0, "#C0392B", "#2A5DB0" )
+
+// Dynamic text for a card or title.
+Headline =
+"Revenue " & FORMAT ( [Revenue YoY %], "+0.0%;-0.0%" ) & " vs prior year, expenses "
+    & FORMAT ( [Expense YoY %], "+0.0%;-0.0%" )
